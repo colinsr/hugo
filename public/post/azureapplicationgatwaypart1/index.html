@@ -1,0 +1,304 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Colin Detwiller&#39;s blog</title>
+        <meta name="author">
+        <meta name="description" content="Colin Detwiller&#39;s Tech blog">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="generator" content="Hugo 0.34" />
+        <link href="https://colin.detwiller.me/post/index.xml" rel="alternate" type="application/rss+xml" title="Colin Detwiller&#39;s blog" />
+        <link href="https://colin.detwiller.me/post/index.xml" rel="feed" type="application/rss+xml" title="Colin Detwiller&#39;s blog" />
+        <link href='//fonts.googleapis.com/css?family=Roboto:400,300,700|Noto+Serif:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://colin.detwiller.me/css/styles.css">
+        <link rel="icon" href="https://colin.detwiller.me/favicon.ico">
+        <link rel="apple-touch-icon" href="https://colin.detwiller.me/apple-touch-icon.png" />
+        <link rel="stylesheet" href="https://colin.detwiller.me/css/highlightjs/monokai.css">
+        <script src="https://colin.detwiller.me/js/vendor/modernizr-2.8.0.min.js"></script>
+        
+        <style>
+        .site-header h2 .logo {
+        background: url(https://colin.detwiller.me/img/cloud.jpg) no-repeat 0 0;
+        }
+        @media (min--moz-device-pixel-ratio: 1.3), (-o-min-device-pixel-ratio: 2.6 / 2), (-webkit-min-device-pixel-ratio: 1.3), (min-device-pixel-ratio: 1.3), (min-resolution: 1.3dppx) {
+          .site-header h2 .logo {
+            background-image: url(https://colin.detwiller.me/img/cloud.jpg);
+        }}
+       .site-header {
+         background: #2a373d url(https://colin.detwiller.me/img/cloud.jpg) no-repeat center center;
+         z-index: -1;
+        }
+        </style>
+    </head>
+    <body>
+        
+        <header class="site-header">
+          <div class="transparent-layer">
+              <h2></h2>
+          </div>
+        </header>
+
+
+<div class="container clearfix">
+    <main role="main" class="content">
+        <article class="post">
+            <a class="btn home" href="https://colin.detwiller.me/" title="Back to home">&laquo; Back to home</a>
+            
+<h1><a href="https://colin.detwiller.me/post/azureapplicationgatwaypart1/" title="Azure Application Gatway - Part 1">Azure Application Gatway - Part 1</a></h1>
+
+<footer class="post-info">Posted on <span class="post-meta"><time datetime="2018.01.29">2018.01.29</time>
+
+</span>
+</footer>
+
+            
+
+<p>This is going to be a chronicling of how to setup an Azure Application Gateway using a custom wildcard certificate
+(You should be thinking &ldquo;*.foobar.com&rdquo;).</p>
+
+<h2 id="the-background">The Background</h2>
+
+<p>I&rsquo;ve gone through some basic tutorials with the Azure Application Gateway (AppGW) in the past, but recently I encountered a scenario where a client needed me to setup an AppGW that could host 4 Azure Web Apps running an an Azure App Service Environment.
+Some of the Application Gateway settings are not available in the portal, so we&rsquo;ll use Powershell for this particular implementation - let&rsquo;s get started with the configuration required to get this AppGW working properly.</p>
+
+<h3 id="app-gw-basics">App GW Basics</h3>
+
+<p>In this tutorial I&rsquo;ll walk through the process of deploying an Azure Resource Group, with two Azure Web Apps running on custom subdomains, both using a wild card SSL Certificate and an Azure Application Gateway to be our security guard/traffic director.
+You can use this pattern to host up to 20 websites hosted in Azure Web Apps, to host them on IaaS there are some tweaks that will need to happen.</p>
+
+<p>We&rsquo;ll break this up into two parts to break up some of the monotony of the configuration.  Part one will be getting our self signed wildcard certificate, VNET and Azure Web Apps configiured, then in part two we&rsquo;ll go over the AppGW configuration in detail.</p>
+
+<p>First things first, we need to login to our Azure subscription.
+If you haven&rsquo;t already setup a profile for your Azure account, now would be a good time to do so to avoid the process of logging in manually every time you want to use Azure Powershell.</p>
+
+<pre><code class="language-powershell">Login-AzureRmAccount
+Save-AzureRmContext -Path C:\MyProfile.json
+</code></pre>
+
+<p>With that out of the way, in the future all you have to do to login is import your Azure context like so:</p>
+
+<pre><code class="language-powershell">Import-AzureRmContext -Path 'C:\MyProfile.json' | Out-Null
+</code></pre>
+
+<p>And now select the target Subscription.</p>
+
+<pre><code class="language-powershell">Get-AzureRmSubscription | 
+    Select Name,SubscriptionId | 
+    Out-Gridview -Title &quot;Choose your Azure Subscription&quot; -OutputMode Single | 
+    Select-AzureRmSubscription
+</code></pre>
+
+<p>Now that we&rsquo;ve selected the target Azure subscription we can get down to business.
+We can set the Azure region we&rsquo;d like to deploy our resources to, and create the resource group to hold all our stuff.</p>
+
+<pre><code class="language-powershell">$location = 'West US'
+$rgName = 'appgateway-rg'
+$resourceGroup = New-AzureRmResourceGroup -Name $rgName -Location $location
+</code></pre>
+
+<p>Let&rsquo;s get the SSL certificate out of the way now.  You have two options here, self-signed and signed.
+For demo purposes we&rsquo;ll go with the free self signed wildcard cert - in a production environment you&rsquo;ll definitely want to us a signed cert.</p>
+
+<pre><code class="language-powershell"># Use signed certificate like so:
+# $pfxPath= 'C:\...\foobarWildCard.pfx'
+# $pfxPassString = 'P@ssw0rd5!'
+# $pfxPassSecure = ConvertTo-SecureString -String $pfxPassString -Force -AsPlainText
+
+# Or create a self signed cert for testing
+$cert = New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname *.ohioazure.com
+$passString = 'P@ssw0rd5!'
+$passSecure = ConvertTo-SecureString -String $passString -Force -AsPlainText
+$pfxPath = 'c:\wildcard.pfx'
+$path = 'cert:\localMachine\my\' + $cert.thumbprint 
+Export-PfxCertificate -cert $path -FilePath $pfxPath -Password $passSecure
+</code></pre>
+
+<p>Next up, we&rsquo;ll create an Azure App Service Plan to run our Web Apps.  Make sure to set the Tier at least Shared so that we have access to Custom Domains.</p>
+
+<pre><code class="language-powershell">$appServicePlanName = 'ohioazure'
+
+New-AzureRmAppServicePlan -Name $appServicePlanName -Location $location `
+    -ResourceGroupName $rgname -Tier Standard
+</code></pre>
+
+<p>Alright, we&rsquo;re ready now to create our first Azure Web app.</p>
+
+<pre><code class="language-powershell">$customHostName1 = 'site1.ohioazure.com'
+$webAppName1 = 'site1-ohio'
+$defaultHostName1 = &quot;$webAppName1.azurewebsites.net&quot;
+
+New-AzureRmWebApp -Name $webappname1 -Location $location `
+     -AppServicePlan $appServicePlanName -ResourceGroupName $rgName
+</code></pre>
+
+<p>I think it&rsquo;s pretty painless to create a Web App inside - but now let&rsquo;s have a little fun and start customizing it.  We&rsquo;ll want to bind this Web App to our custom hostname and in order to do so we need to add a CNAME record to our DNS zone.  Fortunately, my DNS zone is hosted in Azure so it&rsquo;s a straight forward process.  See the docs for your DNS provider on exactly how to add a CNAME record for your Web App.
+After that we&rsquo;ll add the SSL binding with our newly created self signed wildcard certificate.</p>
+
+<pre><code class="language-powershell">#TODO do not proceed until CNAME record is mapped to the Web App's FQDN
+New-AzureRmDnsRecordSet -Name &quot;site1&quot; -RecordType CNAME -ZoneName &quot;OhioAzure.com&quot; `
+    -ResourceGroupName &quot;OhioAzureDomain&quot; -Ttl 300 `
+    -DnsRecords (New-AzureRmDnsRecordConfig -CNAME $defaultHostName1)
+
+Set-AzureRmWebApp -Name $webAppName1 -ResourceGroupName $rgName `
+    -HostNames $customHostName1,$defaultHostName1
+New-AzureRmWebAppSSLBinding -WebAppName $webappname1 -ResourceGroupName $rgName -Name $customHostName1 `
+    -CertificateFilePath $pfxPath -CertificatePassword $passString -SslState SniEnabled
+</code></pre>
+
+<p>Repeat for your second (and any other subsequent Web Apps you may be runing)&hellip;</p>
+
+<pre><code class="language-powershell">$customHostName2 = 'site2.ohioazure.com'
+$webAppName2 = 'site2-ohio'
+$defaultHostName2 = &quot;$webAppName2.azurewebsites.net&quot;
+
+New-AzureRmWebApp -Name $webappname2 -Location $location `
+     -AppServicePlan $appServicePlanName -ResourceGroupName $rgName
+
+New-AzureRmDnsRecordSet -Name &quot;site2&quot; -RecordType CNAME -ZoneName &quot;OhioAzure.com&quot; `
+    -ResourceGroupName &quot;OhioAzureDomain&quot; -Ttl 300 `
+    -DnsRecords (New-AzureRmDnsRecordConfig -Cname $defaultHostName2)
+
+Set-AzureRmWebApp -Name $webAppName2 -ResourceGroupName $rgName `
+    -HostNames $customHostName2,$defaultHostName2
+
+New-AzureRmWebAppSSLBinding -WebAppName $webappname2 -ResourceGroupName $rgName -Name $customHostName2 `
+    -CertificateFilePath $pfxPath -CertificatePassword $passString -SslState SniEnabled
+</code></pre>
+
+<p>I think now would be a good time to set the default document for our Web Apps so that we know which one we&rsquo;re hitting.  There are many different ways to go about this step but for ease of use we&rsquo;ll use FTP.</p>
+
+<pre><code class="language-powershell">$publishProfile1 = [XML](Get-AzureRmWebAppPublishingProfile -Name $webappname2 `
+    -ResourceGroupName $rgName `
+    -OutputFile null)
+$username1 = $publishProfile1.SelectNodes(&quot;//publishProfile[@publishMethod=`&quot;FTP`&quot;]/@userName&quot;).Value
+$password1 = $publishProfile1.SelectNodes(&quot;//publishProfile[@publishMethod=`&quot;FTP`&quot;]/@userPWD&quot;).Value
+$ftpUrlSite1 = $publishProfile1.SelectNodes(&quot;//publishProfile[@publishMethod=`&quot;FTP`&quot;]/@publishUrl&quot;).Value
+
+$file1 = &quot;c:\temp\site1.html&quot;
+$webAppName1 | Out-File $file1
+
+$webclient = New-Object -TypeName System.Net.WebClient
+$webclient.Credentials = New-Object System.Net.NetworkCredential($username1,$password1)
+$uri1 = New-Object System.Uri(&quot;$ftpUrlSite1/index.html&quot;)
+$webclient.UploadFile($uri1, $file1)
+$webclient.Dispose()
+
+# In our example repeat this process for $webAppName2
+</code></pre>
+
+<p>While that method is effective at what we&rsquo;re trying to solve, the code needs to be repeated N times depending on how many Web Apps you&rsquo;re going to deploy.  Do yourself a favor and pull that code out into a function and pass in the moving targets as params - again since this is a demo I&rsquo;m going with quick and extremely dirty here.</p>
+
+<p>Urghh, after reading through my script again I had no choice but to slap this in here.  If you go this route add this function to the top of your script and replace the duplicated code with a call to this function.</p>
+
+<pre><code class="language-powershell">function Set-IndexOnWebApp {
+    Param(
+        [string] $webAppName,
+        [string] $resourceGroupName,
+        [string] $filePath
+    )
+    $pubProfile = [XML](Get-AzureRmWebAppPublishingProfile -Name $webAppName `
+        -ResourceGroupName $resourceGroupName `
+        -OutputFile null)
+    $user = $pubProfile.SelectNodes(&quot;//publishProfile[@publishMethod=`&quot;FTP`&quot;]/@userName&quot;).Value
+    $pass = $pubProfile.SelectNodes(&quot;//publishProfile[@publishMethod=`&quot;FTP`&quot;]/@userPWD&quot;).Value
+    $ftpUrl = $pubProfile.SelectNodes(&quot;//publishProfile[@publishMethod=`&quot;FTP`&quot;]/@publishUrl&quot;).Value
+
+    $webAppName | Out-File $filePath
+
+    $client = New-Object -TypeName System.Net.WebClient
+    $client.Credentials = New-Object System.Net.NetworkCredential($user,$pass)
+    $uri = New-Object System.Uri(&quot;$ftpUrl/index.html&quot;)
+    $client.UploadFile($uri, $filePath)
+    $client.Dispose()
+}
+</code></pre>
+
+<p>Once that&rsquo;s loaded up you can update the landing page for the site like so:</p>
+
+<pre><code class="language-powershell">Set-IndexOnWebApp -webAppName $webAppName1 `
+                  -resourceGroupName $rgName `
+                  -filePath $file1
+
+Set-IndexOnWebApp -webAppName $webAppName2 `
+                  -resourceGroupName $rgName `
+                  -filePath $file2
+</code></pre>
+
+<p>That pretty much wraps up the Web App configuration required to get our AppGW working.  We&rsquo;ll pick up in part two of this series getting our AppGW deployed out to Azure.</p>
+
+<p>To continue this tutorial and pick up where we left off go to <a href="/post/azureapplicationgatwaypart2">Azure Application Gateway Part 2</a>.</p>
+
+            <ul class="share-buttons">
+    <li>Share this article:</li>
+    <li>
+        <a class="icon-facebook-squared" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fcolin.detwiller.me%2fpost%2fazureapplicationgatwaypart1%2f" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;" title="Share on Facebook"></a>
+    </li>
+    <li>
+        <a class="icon-twitter" href="https://twitter.com/share?text=Azure%20Application%20Gatway%20-%20Part%201&amp;url=https%3a%2f%2fcolin.detwiller.me%2fpost%2fazureapplicationgatwaypart1%2f" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" title="Tweet this article"></a>
+    </li>
+    <li>
+        <a class="icon-gplus" href="https://plus.google.com/share?url=https%3a%2f%2fcolin.detwiller.me%2fpost%2fazureapplicationgatwaypart1%2f" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;" title="Share on Google&#43;"></a>
+    </li>
+    <li>
+        <a class="icon-linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url=https%3a%2f%2fcolin.detwiller.me%2fpost%2fazureapplicationgatwaypart1%2f&title=Azure%20Application%20Gatway%20-%20Part%201" onclick="window.open(this.href, 'linkedin-share', 'width=600,height=494');return false;" title="Share on Linkedin"></a>
+    </li>
+</ul>
+
+        </article>
+        
+    </main>
+    <aside class="author">
+  <img class="profile-image" src="https://colin.detwiller.me/img/profile-image.png" alt="" />
+  <p class="name">Colin Detwiller 
+  <strong></strong></p>
+  <p class="address">Cleveland, OH</p>
+  <p class="link"></p>
+  <ul class="social">
+    
+<li><a href="//twitter.com/colinsr1187" class="icon-twitter" target="_blank" title="Twitter"></a></li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li><a href="//github.com/colinsr" class="icon-github" target="_blank" title="Github"></a></li>
+
+
+
+
+<li><a href="https://colin.detwiller.me/post/index.xml" class="icon-rss" target="_blank" title="RSS"></a></li>
+
+  </ul>
+  <br><br>
+</aside>
+
+</div>
+
+<footer class="main-footer">
+  <div class="container clearfix">
+        <a class="icon-rss" href="https://colin.detwiller.me/post/index.xml" title="RSS"></a>
+        <p>&copy; 2018 &middot; Powered by <a href="http://gohugo.io">Hugo</a>.</p>
+  </div>
+</footer>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>window.jQuery || document.write('<script src="https:\/\/colin.detwiller.me\/js\/vendor\/jquery-1.11.0.min.js"><\/script>')</script>
+<script src="https://colin.detwiller.me/js/plugins.js"></script>
+
+
+
+
+</body>
+</html>
+
