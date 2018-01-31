@@ -1,4 +1,4 @@
-baseurl = "https://colin.detwiller.me/"
+baseurl = "http://colin.detwiller.me/"
 languageCode = "en-us"
 title = "Colin Detwiller's blog"
 # Define how many pages appear per site
