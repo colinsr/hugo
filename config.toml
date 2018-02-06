@@ -9,6 +9,8 @@ paginate = 10
 googleAnalytics = ""
 theme = "hugo-minimalist-theme"
 
+enableEmoji = true
+
 [params]
     #site_author = "Colin Detwiller"
     site_description = "Colin Detwiller's Tech blog"
