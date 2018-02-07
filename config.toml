@@ -6,7 +6,7 @@ paginate = 10
 # Enable comments powered by Disqus by entering your disqus shortname
 disqusShortname = "colin-detwiller-me"
 # Enable gogle analytics by entering your tracking code
-googleAnalytics = ""
+googleAnalytics = "UA-70072280-3"
 theme = "hugo-minimalist-theme"
 
 enableEmoji = true
