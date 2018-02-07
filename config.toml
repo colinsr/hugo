@@ -4,7 +4,7 @@ title = "Colin Detwiller's blog"
 # Define how many pages appear per site
 paginate = 10
 # Enable comments powered by Disqus by entering your disqus shortname
-# disqusShortname = "spf13"
+disqusShortname = "colin-detwiller-me"
 # Enable gogle analytics by entering your tracking code
 googleAnalytics = ""
 theme = "hugo-minimalist-theme"
