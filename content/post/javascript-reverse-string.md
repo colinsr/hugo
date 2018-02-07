@@ -7,18 +7,18 @@ In an effort to learn the in's and out's of ES2017 I'm going to be working throu
 
 The first exercise I'd like to work through is a pretty simple one, reversing a string with javascript.
 
-Basically, given string `'foobar'` I'd like to return `'raboof'` - again, this is pretty simple and I think would be a great place to start.
+Basically, given string `'foobar'` I'd like to return `'raboof'` - again, this is pretty simple and I think it would be a great place to start.
 
-To start with let's go ahead and create a new directory with our terminal with 
+To start with, let's go ahead and create a new directory in our terminal with: 
 ```bash
 cd ~/
 mkdir exercises
 cd exercises/
-mkdir reversestring
-cd reversestring/
+mkdir reverseString
+cd reverseString/
 ```
 
-Now we'd like to create two files in this new `reversestring` directory, one for our code and one for our tests.  Yes... tests are required if you consider yourself a professional developer so go ahead and get over it.
+Now we'd like to create two files in this new `reverseString` directory, one for our code and one for our tests.  Yes... tests are required if you consider yourself a professional developer so go ahead and get over it.
 
 Next we're going to create an `index.js` file as well as a `test.js` file.
 And we're going to use the Jest test framework.  We'll get it installed globally by running:
@@ -58,7 +58,8 @@ This will pull in our `index.js` file and validate that the `reverse` function i
 
 Back in our terminal we can execute the tests by running `jest test.js`, and we'll see that our initial test passes.
 
-Now we can go about tackling the implementation of our test script.  We'll be making a few passes at this implementation starting with a simple approach, then cranking up the complexity and finally wrapping up with a more advanced approach that embraces some of the built in functions of javascript arrays.
+Now we can go about tackling the implementation of our test script.  We'll be exploring a few implementation options - starting with a simple solution, cranking it up a bit, and, finally, ending on a more advanced approach.
+Our final solution will embrace and demonstrate some of the built in functions of javascript arrays.
 
 We can start the implementation by writing a couple tests to ensure our code actually works.
 Appending our `test.js` file with the following two tests should do the trick:
@@ -72,7 +73,7 @@ test('Reverse reverses a string with spaces', () => {
 });
 ```
 
-It always makes sense to next run our new tests and see them fail before we proceed to make them pass, we can run the tests once by executing `jest test.js` at our terminal.
+It always makes sense to next run our new tests and see them fail before we proceed to make them pass. We can run the tests once by executing `jest test.js` at our terminal.
 If everything is configured correctly we should see 2 failed tests and 1 passing test.
 
 Finally we can get down to business.
@@ -94,7 +95,7 @@ function reverse(string){
 Our first order of business will be getting the string converted to a javascript array.
 We can get this sorted out by calling `string.split('')`.
 After we've got our string stored in a variable as an array, we can simply call the reverse method, `stringArray.reverse()`.
-Then we need to convert the reversed char array to a string - `reversedStrArray.join('');
+Then we need to convert the reversed char array to a string - `reversedStrArray.join('');`.
 And finally return the reversed string, `return reversed`.
 
 ```javascript
@@ -129,7 +130,7 @@ Rerun our tests to ensure we haven't introduced any regressions and we're good t
 
 With that out of the way we can implement this without using a built in function.
 Here, we're going to be iterating over the chars in the string and prepending each char to the existing reversed string.
-We'll start with an empty string for our reversed string, and loop through each letter in the string prepending it to our reversed string one leter at a time.
+We'll start with an empty string for our reversed string, and loop through each letter in the string prepending it to our reversed string one letetr at a time.
 We could use our go to `for(var i = 0;i < string.length; i++){ }` syntax as our loop construct, but if we did we'd be missing out on some of the newer ES2015 features available to use in the `for...of` loop.
 I like the syntax of this looping construct better, it exposes us to less typos/errors in our loop construction.
 What if we were to use a greater than instead of a less than?  Or if we used the wrong variable to grab the length?
@@ -170,7 +171,7 @@ Reduce is one of the cornerstones of functional programming and can be used in a
 Given the following array `const transactions = [1,2,3,4,5,6,7,8,9,10]` what is the simplest way to sum them up?
 A loop?  Hells no.  We are looking at reduce right here.
 How does one use reduce to return the sum of these values, you may be asking.
-Like so, 
+Like so: 
 ```javascript
 const total = transactions.reduce((total, current) => total + current);
 ```
