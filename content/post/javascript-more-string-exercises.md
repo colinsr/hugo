@@ -75,21 +75,20 @@ We can either add the additional tests via vim, your favorite text editor or jus
 ```bash
 echo "test('"mom" is a palindrome', () => {
     expect(palindrome('bba')).toBeFalsy();
->     expect(palindrome('mom')).toBeTruthy();
-> });
->
-> test('"racecar" is a palindrome', () => {
->     expect(palindrome('racecar')).toBeTruthy();
-> });
->
-> test('"bba" is not a palindrome', () => {
->     expect(palindrome('bba')).toBeFalsy();
-> });
->
-> test('" dad" is not a palindrome', () => {
->     expect(palindrome(' dad')).toBeFalsy();
-> });
-> " >> test.js
+    expect(palindrome('mom')).toBeTruthy();
+});
+
+test('"racecar" is a palindrome', () => {
+    expect(palindrome('racecar')).toBeTruthy();
+});
+
+test('"bba" is not a palindrome', () => {
+    expect(palindrome('bba')).toBeFalsy();
+});
+
+test('" dad" is not a palindrome', () => {
+    expect(palindrome(' dad')).toBeFalsy();
+});" >> test.js
 ```
 
 This command will append our new tests to our `test.js` file.  Upon updating the test file, we should see some activity in the terminal where we ran the jest suite with the watch flag set.
