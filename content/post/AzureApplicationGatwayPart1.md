@@ -1,6 +1,8 @@
 ---
 title: "Azure Application Gatway - Part 1"
 date: 2018-01-29T10:43:38-05:00
+tags: ["load balancing", "azure"]
+categories: ["cloud", "azure"]
 ---
 
 This is going to be a chronicling of how to setup an Azure Application Gateway using a custom wildcard certificate 

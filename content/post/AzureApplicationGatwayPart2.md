@@ -1,6 +1,8 @@
 ---
 title: "Azure Application Gatway - Part 2"
 date: 2018-01-29T10:43:42-05:00
+tags: ["load balancing", "azure"]
+categories: ["cloud", "azure"]
 ---
 
 This is a continuation from part one on setting up an [Azure Application Gateway Part 1](/post/azureapplicationgatwaypart1). 
