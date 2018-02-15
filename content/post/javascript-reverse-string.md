@@ -1,6 +1,8 @@
 ---
 title: "Javascript Reverse String"
 date: 2018-02-03T10:03:12-05:00
+tags: ["javascript", "exercises"]
+categories: ["javascript"]
 ---
 
 In an effort to learn the in's and out's of ES2017 I'm going to be working through some exercises.

@@ -1,6 +1,8 @@
 ---
 title: "Javascript More String Exercises"
 date: 2018-02-07T08:58:34-05:00
+tags: ["javascript", "exercises"]
+categories: ["javascript"]
 ---
 
 Next up on our list of exercises is going to be two more simple functions.

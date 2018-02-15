@@ -1,6 +1,8 @@
 ---
 title: "Return Max Char"
 date: 2018-02-10T07:33:48-05:00
+tags: ["javascript", "exercises"]
+categories: ["javascript"]
 ---
 
 Today we're going to be writing a function that will return the most frequent character that appears in a string.
