@@ -1,5 +1,5 @@
 ---
-title: "Azure Application Gatway - Part 1"
+title: "Azure Application Gateway - Part 1"
 date: 2018-01-29T10:43:38-05:00
 tags: ["load balancing", "azure"]
 categories: ["cloud", "azure"]
