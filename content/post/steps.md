@@ -3,7 +3,6 @@ title: "Steps"
 date: 2018-02-25T17:35:40-05:00
 tags: ["javascript", "exercises"]
 categories: ["javascript"]
-draft: true
 ---
 
 Ok, next up on our list of exercises is going to be to create a `steps(n)` function.
