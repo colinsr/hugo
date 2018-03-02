@@ -1,7 +1,8 @@
 ---
 title: "Pyramid"
 date: 2018-02-28T08:21:12-05:00
-draft: true
+tags: ["javascript", "exercises"]
+categories: ["javascript"]
 ---
 
 Building on our last exercise this time we're going to be building a pyramid.
@@ -179,19 +180,27 @@ const pyramid = n => {
 I'm thinking we create two helper functions.  One to handle printing for left of center, and one to handle right of center.
 Let's come up with an example of how to handle the left of center.  We have `n = 3`, so we are working with 3 lines, and 5 characters per line.
 We already have the middle character done, so we're essentially looking at what character to print for elements 0 and 1.
+
+I'm swapping out spaces for underscores so that we have a better way to visualize this, as well as adding in a space between the characters:
 ```javascript
-__#__
-_###_
-#####
+_ _ # _ _
+_ # # # _
+# # # # #
 ```
 The numbers we have at our disposal are the number of lines to print and the current line number.
 Our first round will be 3 lines, currently on line 1.
+
 We'd like to print 2 spaces and 0 hashtags.
+
 For our second pass we'll have 3 lines total, and we'll be on line 2.
 We'd like to print 1 space and 1 hashtag.
+
 For our final pass, 3 lines total, on line 3.
+
 We want to print 2 hashtags and 0 spaces.
+
 It's just the inverse for the trailing characters.
+
 Okay, we can start coaxing out the printing logic now.
 ```javascript
 const getLeadingChars  = (lines, lineNumber) => `${space.repeat(lines - lineNum)}${hash.repeat(lineNum - 1)}`;
@@ -199,8 +208,10 @@ const getTrailingChars = (lines, lineNumber) => `${hash.repeat(lineNum - 1)}${sp
 ```
 Plug these helpers into our map and let's check the results.
 ```javascript
-const getLeadingChars = (lineNum, lines) => `${space.repeat(lines - lineNum)}${hash.repeat(lineNum - 1)}`;
+const hash  = '#',
+      space = ' ';
 
+const getLeadingChars = (lineNum, lines) => `${space.repeat(lines - lineNum)}${hash.repeat(lineNum - 1)}`;
 const getTrailingChars = (lineNum, lines) => `${hash.repeat(lineNum - 1)}${space.repeat(lines - lineNum)}`;
 
 const pyramid = n => {
@@ -210,3 +221,5 @@ const pyramid = n => {
 ```
 
 Nice!  Passing tests, and readable code.  I much prefer this option.
+
+:thumbsup:
