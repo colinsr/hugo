@@ -131,10 +131,36 @@ But first things first, let's calculate the middle character for each line/layer
 Using our previous examples of `n = 2`, `n = 3`, `n = 4`, we learned that we double and subtract one to get the number of characters per line.  That leaves us with `3`, `5`, and `7` characters respectively.
 To get the middle characters index then we simply need to divide by 2, and round down to the nearest whole number.
 ```javascript
-const dividedByTwo = 3/2; //1.5
-const middleIndex  = Math.floor(dividedByTwo); // 1 (remember arrays start at 0)
+const dividedByTwo = 5/2; //2.5
+const middleIndex  = Math.floor(dividedByTwo); // 2 (remember arrays start at 0)
 ```
 Alright, now we can start working on when to print a space versus a hashtag.
+
+Walking through a 3 line scenario, we'll be looping through the chars to print inside of a single line.
+
+Line 1, `curLine` will be 0.  We step into our inner loop, and `curChar` will be 0.
+We know in line 1, we only want the middle character (of 5) to be a hashtag.  We're looking to limit printing a hashtag to index 2 (third char).<br/>
+If the `midIndex - curLine <= curChar` => `2 - 0 <= 0` that will get us a false because 2 is not less than or equal to 0.<br/>
+If the `midIndex + curLine >= curChar` => `2 + 0 >= 0` this is true, but we want to apply both of these rules to keep the '#' printing inside a range of indexes.<br/>
+Moving on to `curChar = 1`, will get us `if (2 - 0 <= 1) && (2 + 0 >= 1)` false so we print a space.<br/>
+When `curChar = 2`, will get us `if (2 - 0 <= 2) && (2 + 0 >= 2)` which gets us to true and we print a hashtag.<br/>
+Next is `curChar = 3`, will get us `if (2 - 0 <= 3) && (2 + 0 >= 3)` back to false and we print a space.<br/>
+The final character in our first line is `curChar = 4`, will get us `if (2 - 0 <= 4) && (2 + 0 >= 4)` false again print another space.
+
+Line 2, `curLine` will be 1 and we're looking to print a leading and trailing space, with 3 hashtags sandwiched in the middle.<br/>
+`curChar = 0` => `if (2 - 1 <= 0 && 2 + 1 >= 0) //false`<br/>
+`curChar = 1` => `if (2 - 1 <= 1 && 2 + 1 >= 1) //true`<br/>
+`curChar = 2` => `if (2 - 1 <= 2 && 2 + 1 >= 2) //true`<br/>
+`curChar = 3` => `if (2 - 1 <= 3 && 2 + 1 >= 3) //true`<br/>
+`curChar = 4` => `if (2 - 1 <= 4 && 2 + 1 >= 4) //false`<br/>
+
+Line 3, `curLine` is now 2 and we want to print all hashtags.<br/>
+`curChar = 0` => `if (2 - 2 <= 0 && 2 + 2 >= 0) //true`<br/> 
+`curChar = 1` => `if (2 - 2 <= 1 && 2 + 2 >= 1) //true`<br/>
+`curChar = 2` => `if (2 - 2 <= 2 && 2 + 2 >= 2) //true`<br/>
+`curChar = 3` => `if (2 - 2 <= 3 && 2 + 2 >= 3) //true`<br/>
+`curChar = 4` => `if (2 - 2 <= 4 && 2 + 2 >= 4) //true`
+
 ```javascript
 const pyramid = n => {
   const charsPerLine = (2*n)-1,
@@ -146,8 +172,8 @@ const pyramid = n => {
     //for loop to print 1 to how many chars we need per level
     for (let curChar = 0; curChar < charsPerLine; curChar++) {
       //figure out which char to append to currentLine => '#' or ' '
-      currentLine += (midIndex - curLine <= curChar // handles left of the middle
-                  &&  midIndex + curLine >= curChar) // handles right of the middle
+      currentLine += (midIndex - curLine <= curChar 
+                  &&  midIndex + curLine >= curChar)
                   ? '#' : ' ';
     }
     console.log(currentLine);
