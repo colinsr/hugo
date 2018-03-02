@@ -129,7 +129,7 @@ const pyramid = n => {
 When we go to append the `currentLine` string with the character we're going to need to check two things.
 But first things first, let's calculate the middle character for each line/layer in the pyramid.
 Using our previous examples of `n = 2`, `n = 3`, `n = 4`, we learned that we double and subtract one to get the number of characters per line.  That leaves us with `3`, `5`, and `7` characters respectively.
-To get the middle characters index then we simply need to divide by 2, and round up to the nearest whole number.
+To get the middle characters index then we simply need to divide by 2, and round down to the nearest whole number.
 ```javascript
 const dividedByTwo = 3/2; //1.5
 const middleIndex  = Math.floor(dividedByTwo); // 1 (remember arrays start at 0)
