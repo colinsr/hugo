@@ -1,7 +1,6 @@
 ---
 title: "AWS Identity & Access Management"
 date: 2018-03-17T07:49:12-04:00
-draft: true
 tags: ["aws", "amazon web services", "IAM"]
 categories: ["cloud"]
 ---
