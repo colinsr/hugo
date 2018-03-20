@@ -1,7 +1,6 @@
 ---
 title: "AWS VPC"
 date: 2018-03-19T06:55:51-04:00
-draft: true
 tags: ["aws", "amazon web services", "VPC"]
 categories: ["cloud"]
 ---
