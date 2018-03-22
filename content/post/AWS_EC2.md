@@ -10,16 +10,16 @@ In this post we're going to walk through setting an AWS EC2 (elastic compute clo
 
 Up until now we've been going over what some may consider boring.  Permissions and Networking are not necessarily at the top of everyone's list of things they have queued up to learn.  Well I have good news, we're going to have a pair of web servers running in EC2 by the time you finish reading this post.  And all of that Permission and Networking knowledge is really going to pay off.
 
-A quick recap of what we did in the VPC post is in order.  We created a new VPC, created two public subnets, created/attached an Internet Gateway to our VPC, created a new Route Table and added a route for all non-local traffic to pass through the IGW remembering of course to associate it to our public Subnets, added a new Network Access Control List with two ingress/egress rules - SSH from my IP and HTTP traffic over port 80 before associating it with our public Subnets,  then we created a Security Group and added the same inbound rules omitting the outbound since SGs are stateful.<br>
+A quick recap of what we did in the VPC post is in order.  We created a new VPC, created two public subnets, created/attached an Internet Gateway to our VPC, created a new Route Table and added a route for all non-local traffic to pass through the IGW remembering of course to associate it to our public Subnets, added a new Network Access Control List with the requisite ingress/egress rules - SSH from my IP and HTTP/S traffic over ports 80 & 443 as well as the ephemeral ports 32768-65535 before associating it with our public Subnets,  then we created a Security Group and added the same inbound rules omitting the outbound since SGs are stateful.<br>
 We certainly were busy.
 
-Picking up where we left off we're going to be creating 2 linux EC2 instances to act as web servers.  I'll walk through the process on the web server we deploy to our `public-1` Subnet and then you can rinse and repeat for the web server in the `public-2` subnet.
+Picking up where we left off we're going to be creating 2 Amazon linux EC2 instances to act as web servers.  I'll walk through the process on the web server we deploy to our `public-1` Subnet and then you can rinse and repeat for the web server in the `public-2` subnet.
 
 ## What is an EC2 instance??
 AWS EC2 is just another one of the services that AWS provides.  They are virtual servers, that can be scaled up (add more power) or scaled out (add more capacity) on demand and are able to run workloads on Linux or Windows Operating Systems.<br>
-The starting point for an EC2 instance is going to be the AMI or Amazon Machine Image.  An AMI includes some of the OS level settings, root drives, additional drives attached to an instance, installed software/packages, as well as the Operating System itself.  You can use an AMI provided by AWS, an AWS partner, or one of your own.
+The starting point for an EC2 instance is going to be the AMI or Amazon Machine Image.  An AMI includes some of the OS level settings, root drives, additional drives attached to an instance, installed software/packages, as well as the Operating System itself.  You can use an AMI provided by AWS, any number of companies who provide their own AMIs in the Community Marketplace, or of course, one of your own.
 
-Next we have the Instance Type.  AWS is a bit like Baskin Robbins in that they have so many flavors to choose from. Different Instance Types are suited for different workloads, sometimes you'll need to do a little testing to see what Instance Type will work best for you.<br>
+Next we have the Instance Type.  AWS is a bit Baskin Robbins-ish in that they have so many flavors to choose from. Different Instance Types are suited for different workloads, sometimes you'll need to do a little testing to see what Instance Type will work best for you.<br>
 They can be broken down into these 5 broad categories:
 
 * General Purpose
@@ -28,7 +28,7 @@ They can be broken down into these 5 broad categories:
 * Accelerated Computing
 * Storage Optimized
 
-Some have more CPU power, some more memory, etc etc.  We'll be sticking with the AWS Free Tier in this post - which means we'll be using a T2 type.  Each Instance Type can be provisioned with different specs allowing you to keep the same type but scale up to get more power.
+Some have more CPU power, some more memory, etc etc.  We'll be sticking with the AWS Free Tier in this post - which means we'll be using a `t2.micro` instance.  Each Instance Type can be provisioned with different specs allowing you to keep the same type but scale up to get more power.
 
 Network interface card is another option we have.  While a NIC is required we do have some choices to make here.<br>
 Do we want only a private IP?  Is a dynamic public IP sufficient for our needs or do we need a static IP?<br>
@@ -72,7 +72,7 @@ If you went through my IAM post, you'll notice the IAM role option here. As a qu
 
 There are a few other settings here, which we'll accept the defaults for, but one in particular that's worth talking about is the Tenancy option.  This goes back to the Shared/Dedicated option we talked about in the VPC post.  Dedicated means you'll be paying a lot more but you'll sleep better at night knowing that your competitor's application is definitely not running on the same physical server - we'll stick with Shared.
 
-Below the basic settings, we'll see the Network Interfaces section.  Here we can add additional NICs or choose a primary IP for use that falls within the CIRD range for our Subnet.  AWS provides DHCP for us, so unless we have a reason to assign a specific IP we'll let AWS DHCP do it's thing.
+Below the basic settings, we'll see the Network Interfaces section.  Here we can add additional NICs or choose a primary IP for use that falls within the CIDR range for our Subnet.  AWS provides DHCP for us, so unless we have a reason to assign a specific IP we'll let AWS DHCP do it's thing.
 
 And bringing up the end of our instance details page is an Advanced Details setting.  This is where we can inject our own custom code which will be run during the instance provisioning process.
 
@@ -106,6 +106,12 @@ Then we can *actually* launch our instance.  We're presented with a confirmation
 
 Before we go about connecting to our instance, let's see if the web server is actually serving up the default nginx page.  Snag the IPv4 Public IP and paste it into your browser.  If you see the default nginx page then we are good to go.
 
-Voila, we've just stood up our first web server.  Now you just need to repeat this process for `web-2`.
+Voila, we've just stood up our first web server.  
+
+Now you just need to repeat this process for `web-2`.
+
+I know, this is not very useful having two EC2 instance that serve up a default nginx page when your route directly to their public IPs, but you need to walk before you can run so bear with me.
+
+Also, worth noting, up until now we have been creating resources that don't incur any cost.  VPCs, Subnets, SGs, and NACLs are free - but instances can cost money to run.  Best to stop/terminate your instances when you're not actively working with them.
 
 :thumbsup:
