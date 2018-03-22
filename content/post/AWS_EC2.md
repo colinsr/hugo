@@ -104,8 +104,7 @@ WTH, is this stuff about keypairs.  Well in order to SSH into our new server we'
 
 Then we can *actually* launch our instance.  We're presented with a confirmation screen and we can click on the View Instances link which redirects us to the EC2 Instances view.  Our Instance is currently on it's way up.<br>
 
-Before we go about connecting to our instance, let's see if the web server is actually serving up the default nginx page.  Snag the IPv4 Public IP and paste it into your browser.
-
+Before we go about connecting to our instance, let's see if the web server is actually serving up the default nginx page.  Snag the IPv4 Public IP and paste it into your browser.  If you see the default nginx page then we are good to go.
 
 Voila, we've just stood up our first web server.  Now you just need to repeat this process for `web-2`.
 
