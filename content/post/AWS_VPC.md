@@ -5,7 +5,7 @@ tags: ["aws", "amazon web services", "VPC"]
 categories: ["cloud"]
 ---
 
-In this post we're going to dissect the make up of an AWS VPC.  
+In this post we're going to dissect the make up of an AWS Virtual Private Cloud.  
 VPC's make up the networking component of Amazon Web Services.
 They're composed of several distinct pieces, we'll go over each one independently and talk about their purpose and some of the ins and outs of them.
 

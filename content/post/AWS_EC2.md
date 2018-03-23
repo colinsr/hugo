@@ -7,7 +7,7 @@ categories: ["cloud"]
 
 In this post we're going to walk through setting an AWS EC2 (elastic compute cloud) instance.  During the course of this post we'll talk through some of the different options available and why they're important.
 
-Up until now we've been going over what some may consider boring.  Permissions and Networking are not necessarily at the top of everyone's list of things they have queued up to learn.  Well I have good news, we're going to have a pair of web servers running in EC2 by the time you finish reading this post.  And all of that Permission and Networking knowledge is really going to pay off.
+Up until now we've been going over what some may consider boring.  [IAM Permissions](/post/AWS_IAM) and [VPC Networking](/post/AWS_VPC) are not necessarily at the top of everyone's list of things they have queued up to learn.  Well I have good news, we're going to have a pair of web servers running in EC2 by the time you finish reading this post.  And all of that Permission and Networking knowledge is really going to pay off.
 
 A quick recap of what we did in the VPC post is in order.  We created a new VPC, created two public subnets, created/attached an Internet Gateway to our VPC, created a new Route Table and added a route for all non-local traffic to pass through the IGW remembering of course to associate it to our public Subnets, added a new Network Access Control List with the requisite ingress/egress rules - SSH from my IP and HTTP/S traffic over ports 80 & 443 as well as the ephemeral ports 32768-65535 before associating it with our public Subnets,  then we created a Security Group and added the same inbound rules omitting the outbound since SGs are stateful.<br>
 We certainly were busy.
@@ -65,7 +65,7 @@ The Configure Instance Details screen is up next and this is where we can select
 
 Here we'll make sure to choose 1 instance, target our `Dev-VPC` and `public-1` subnet.  Now this Auto-assign Public IP setting defaults to the Subnet level setting for auto-assigning public IPs, but can be overridden here to be set to enable.
 
-If we were to breeze over this setting without assigning a public IP at launch time, we still have the option of attaching an Elastic IP to the instance after launch.  Make sure you selece Enable for this to save yourself a bit of hassle.
+If we were to breeze over this setting without assigning a public IP at launch time, we still have the option of attaching an Elastic IP to the instance after launch.  Make sure you select Enable for this to save yourself a bit of hassle.
 
 If you went through my IAM post, you'll notice the IAM role option here. As a quick refresher, we can assign a role to an AWS resource which will give it permissions defined in the role via IAM policies.  This is a best practice and prevents us from having to use any type of AWS credentials from the instance itself.  Since we (currently) have no need to interact with any other AWS services we'll leave that blank for now.  In the past an IAM role could only be attached to an EC2 instance at launch time, but in late 2017 AWS added the ability to add/change roles attached to an instance at any time.
 
